@@ -1,12 +1,7 @@
 {
-  "name": "@gabriel-cervo/pi-skills",
+  "name": "@gabriel-cervo/pi-stuff",
   "version": "1.0.0",
-  "description": "A collection of skills and extensions for pi-coding-agent",
+  "description": "A workspace for personal pi-coding-agent resources",
   "keywords": ["pi-package"],
-  "license": "MIT",
-  "pi": {
-    "skills": ["./skills"],
-    "extensions": ["./extensions"],
-    "themes": ["./.pi/themes"]
-  }
+  "license": "MIT"
 }

@@ -6,11 +6,6 @@
   "terminal": {
     "showTerminalProgress": true
   },
-  "packages": [
-    "npm:pi-mcp-adapter",
-    "npm:pi-web-access"
-  ],
-  "theme": "tokyonight-moon",
   "compaction": {
     "enabled": false
   },
