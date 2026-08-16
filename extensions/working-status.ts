@@ -4,14 +4,16 @@
  * Personalizes Pi's working indicators and footer:
  * - Working message: random whimsical verb phrases (whimsical.ts style)
  * - Working animation: Claude Code-style ping-pong spinner (based on
- *   pi-claude-shimmer), catppuccin latte sky
+ *   pi-claude-shimmer); colored with the theme accent (falls back to
+ *   catppuccin latte sapphire when no truecolor accent is available)
+ * - Working message: colored with the same theme accent
  * - Footer effort text (thinking level): colored like the text input border
  * - Footer context %: normal < 60%, warning 60-80%, error > 80%
  * - Footer stats separated by " • "
  */
 
 import type { AssistantMessage } from "@earendil-works/pi-ai";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 import { readFileSync } from "node:fs";
@@ -482,10 +484,14 @@ function pickRandom(): string {
 
 // ---------------------------------------------------------------------------
 // Working animation: Claude Code-style spinner (pi-claude-shimmer).
-// Fixed color: catppuccin latte sapphire.
+// Color follows the theme's accent color - e.g. the purple used for
+// [Skills] [Extensions] [Themes] on launch (Monokai-Pro accent = magenta
+// #ab9df2). Falls back to the previous fixed color (catppuccin latte
+// sapphire) when the theme's accent isn't a truecolor RGB (256-color mode
+// or a default-terminal-color accent).
 // ---------------------------------------------------------------------------
 
-const WORKING_COLOR_HEX = "#209fb5"; // catppuccin latte sapphire
+const WORKING_COLOR_FALLBACK = "#209fb5"; // catppuccin latte sapphire
 
 function hexToRgb(hex: string): string {
 	return `\x1b[38;2;${parseInt(hex.slice(1, 3), 16)};${parseInt(hex.slice(3, 5), 16)};${parseInt(hex.slice(5, 7), 16)}m`;
@@ -495,6 +501,35 @@ function colorize(text: string, hex: string): string {
 	return `${hexToRgb(hex)}${text}\x1b[0m`;
 }
 
+/** Extract a `#rrggbb` hex from a truecolor ANSI prefix, or undefined. */
+function ansiPrefixToHex(prefix: string): string | undefined {
+	const match = prefix.match(/\x1b\[38;2;(\d+);(\d+);(\d+)m/);
+	if (!match) return undefined;
+	const [r, g, b] = [Number(match[1]), Number(match[2]), Number(match[3])];
+	return `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+}
+
+/** Resolve the working color from the theme's accent, falling back if needed. */
+function resolveWorkingColor(theme: Theme): string {
+	try {
+		const hex = ansiPrefixToHex(theme.getFgAnsi("accent"));
+		if (hex) return hex;
+	} catch {
+		// theme unavailable - fall back
+	}
+	return WORKING_COLOR_FALLBACK;
+}
+
+let workingColorHex = WORKING_COLOR_FALLBACK;
+
+/** Refresh the working color from the live theme. Returns true if it changed. */
+function refreshWorkingColor(theme: Theme): boolean {
+	const next = resolveWorkingColor(theme);
+	const changed = next !== workingColorHex;
+	workingColorHex = next;
+	return changed;
+}
+
 /** Claude Code-style ping-pong spinner glyphs (forward, then reverse). */
 const GLYPHS = ["·", "✢", "✳", "✶", "✻", "✽"];
 const SPINNER_INTERVAL_MS = 120;
@@ -502,8 +537,6 @@ const SPINNER_INTERVAL_MS = 120;
 function buildSpinnerFrames(hex: string): string[] {
 	return [...GLYPHS, ...[...GLYPHS].reverse()].map((g) => colorize(g, hex));
 }
-
-const SPINNER_FRAMES = buildSpinnerFrames(WORKING_COLOR_HEX);
 
 // ---------------------------------------------------------------------------
 // Footer helpers (mirrors the built-in footer implementation)
@@ -623,8 +656,9 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("session_start", async (_event, c) => {
 		ctx = c;
+		refreshWorkingColor(c.ui.theme);
 		c.ui.setWorkingIndicator({
-			frames: SPINNER_FRAMES,
+			frames: buildSpinnerFrames(workingColorHex),
 			intervalMs: SPINNER_INTERVAL_MS,
 		});
 
@@ -815,8 +849,16 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("turn_start", async (_event, c) => {
 		ctx = c;
+		// Follow theme changes (e.g. /settings) - re-set frames only when the
+		// accent color actually changed so the spinner doesn't restart.
+		if (refreshWorkingColor(c.ui.theme)) {
+			c.ui.setWorkingIndicator({
+				frames: buildSpinnerFrames(workingColorHex),
+				intervalMs: SPINNER_INTERVAL_MS,
+			});
+		}
 		// Working text in the spinner color
-		c.ui.setWorkingMessage(colorize(pickRandom(), WORKING_COLOR_HEX));
+		c.ui.setWorkingMessage(colorize(pickRandom(), workingColorHex));
 	});
 
 	pi.on("turn_end", async (_event, c) => {
