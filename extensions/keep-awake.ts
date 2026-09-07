@@ -31,22 +31,11 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 
 type Mode = "auto" | "on" | "off";
 
-const STATUS_KEY = "keep-awake";
-
 export default function (pi: ExtensionAPI) {
 	if (process.platform !== "darwin") return;
 
 	let mode: Mode = "auto";
 	let caffeinate: ChildProcess | null = null;
-
-	function updateStatus(ctx: ExtensionContext) {
-		if (!ctx.hasUI) return;
-		if (caffeinate) {
-			ctx.ui.setStatus(STATUS_KEY, "☕ awake");
-		} else {
-			ctx.ui.setStatus(STATUS_KEY, undefined);
-		}
-	}
 
 	function start(ctx: ExtensionContext) {
 		if (caffeinate || mode === "off") return;
@@ -57,14 +46,12 @@ export default function (pi: ExtensionAPI) {
 			});
 			caffeinate.on("error", (error) => {
 				caffeinate = null;
-				updateStatus(ctx);
 				if (ctx.hasUI) {
 					ctx.ui.notify(`keep-awake: failed to start caffeinate: ${error.message}`, "error");
 				}
 			});
 			caffeinate.on("exit", () => {
 				caffeinate = null;
-				updateStatus(ctx);
 			});
 			// Don't hold pi's event loop open on shutdown.
 			caffeinate.unref();
@@ -75,14 +62,12 @@ export default function (pi: ExtensionAPI) {
 			}
 			return;
 		}
-		updateStatus(ctx);
 	}
 
 	function stop(ctx: ExtensionContext) {
 		if (!caffeinate) return;
 		caffeinate.kill();
 		caffeinate = null;
-		updateStatus(ctx);
 	}
 
 	function sync(ctx: ExtensionContext) {
