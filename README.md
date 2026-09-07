@@ -23,6 +23,7 @@ Additional packages used alongside it (installed separately, see sections below)
 pi install npm:pi-web-access
 pi install npm:@juicesharp/rpiv-ask-user-question
 pi install npm:@ff-labs/pi-fff
+pi install npm:@tintinweb/pi-subagents
 pi install git:github.com/mattpocock/skills
 ```
 
@@ -55,19 +56,21 @@ The package is configured in `~/.pi/agent/settings.json` to exclude the `in-prog
 
 Pi extensions live in [`extensions`](extensions):
 
-- [`working-status.ts`](extensions/working-status.ts) - Claude Code-style ping-pong working spinner and whimsical working messages in Catppuccin sapphire, plus a custom footer: effort text (thinking level) colored like the input border, context % thresholds (normal < 60%, warning 60-80%, error > 80%), ` • ` separators, and editor padding.
 - [`keep-awake.ts`](extensions/keep-awake.ts) - Runs `caffeinate -d` while the agent is working so the Mac never sleeps mid-run. Modes managed with `/awake` (`on`/`off`/`auto`/`status`); caffeinate is tied to pi's pid with `-w` so it can't leak. No-op on non-macOS.
+- [`working-status.ts`](extensions/working-status.ts) - Whimsical working messages in plain theme-default text alongside pi's default spinner, plus a custom footer: effort text (thinking level) colored like the input border, context % thresholds (normal < 60%, warning 60-80%, error > 80%), ` • ` separators, and editor padding.
 
 Third-party extensions installed separately from npm:
 
 - [`pi-web-access`](https://pi.dev/packages/pi-web-access) - Web search, URL fetching, video understanding.
 - [`@juicesharp/rpiv-ask-user-question`](https://pi.dev/packages/@juicesharp/rpiv-ask-user-question) - `ask_user_question` structured questionnaire tool.
 - [`@ff-labs/pi-fff`](https://pi.dev/packages/@ff-labs/pi-fff) - FFF-powered fuzzy file and content search, replacing `find`/`grep`.
+- [`@tintinweb/pi-subagents`](https://github.com/tintinweb/pi-subagents) - Configurable background subagents and `/agents` support.
 
 ```bash
 pi install npm:pi-web-access
 pi install npm:@juicesharp/rpiv-ask-user-question
 pi install npm:@ff-labs/pi-fff
+pi install npm:@tintinweb/pi-subagents
 ```
 
 ## Themes
@@ -75,6 +78,8 @@ pi install npm:@ff-labs/pi-fff
 Custom themes live in [`themes`](themes):
 
 - [`catppuccin-latte`](themes/catppuccin-latte.json) - Catppuccin Latte (light), from Ghostty
+- [`monokai-pro`](themes/monokai-pro.json) - Monokai Pro.
+- [`tokyonight`](themes/tokyonight.json) - Tokyo Night.
 
 ## License
 

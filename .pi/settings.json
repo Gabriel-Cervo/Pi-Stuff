@@ -1,14 +1,33 @@
 {
-  "lastChangelogVersion": "0.81.1",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-luna",
-  "defaultThinkingLevel": "xhigh",
-  "theme": "monokai-pro",
+  "lastChangelogVersion": "0.85.1",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "qwen3.8-flash",
+  "defaultThinkingLevel": "max",
   "terminal": {
-    "showTerminalProgress": true
+    "showTerminalProgress": false
   },
+  "theme": "dark",
   "compaction": {
-    "enabled": false
+    "enabled": true
   },
-  "editorPaddingX": 1
+  "editorPaddingX": 1,
+  "hideThinkingBlock": false,
+  "showCacheMissNotices": true,
+  "collapseChangelog": false,
+  "fullscreenScrollbar": "auto",
+  "tuiMode": "regular",
+  "packages": [
+    "npm:pi-web-access",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@ff-labs/pi-fff",
+    {
+      "source": "git:github.com/mattpocock/skills",
+      "skills": [
+        "!skills/in-progress/**",
+        "!skills/deprecated/**"
+      ]
+    },
+    "npm:@tintinweb/pi-subagents"
+  ],
+  "outputPad": 1
 }
