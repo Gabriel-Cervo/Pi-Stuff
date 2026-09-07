@@ -56,6 +56,7 @@ The package is configured in `~/.pi/agent/settings.json` to exclude the `in-prog
 Pi extensions live in [`extensions`](extensions):
 
 - [`working-status.ts`](extensions/working-status.ts) - Claude Code-style ping-pong working spinner and whimsical working messages in Catppuccin sapphire, plus a custom footer: effort text (thinking level) colored like the input border, context % thresholds (normal < 60%, warning 60-80%, error > 80%), ` • ` separators, and editor padding.
+- [`keep-awake.ts`](extensions/keep-awake.ts) - Runs `caffeinate -d` while the agent is working so the Mac never sleeps mid-run. Modes managed with `/awake` (`on`/`off`/`auto`/`status`); caffeinate is tied to pi's pid with `-w` so it can't leak. No-op on non-macOS.
 
 Third-party extensions installed separately from npm:
 
